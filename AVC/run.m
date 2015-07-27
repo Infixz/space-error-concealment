@@ -47,17 +47,17 @@ end
 tic    %开始计时
 
 slice_to_be_lost = 1;
-nSlices = 2;
-mb_size = 16;
-mode = 'dispersed';
+nSlices = 2;    %number of slices the image is made of
+mb_size = 8;    %块大小
+mode = 'dispersed';    %模式选择
 
 %Cropping the image so it is made of an integer number of macroblocks
 %将图片切成宏块
-img = img(1:floor(r/mb_size)*mb_size,1:floor(c/mb_size)*mb_size);
-[rows, cols] = size(img);
+img = img(1:floor(r/mb_size)*mb_size,1:floor(c/mb_size)*mb_size);   %将图像小于块大小的去除
+[rows, cols] = size(img);   %新图像的大小
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[mask centers] = simuLoss(img, mb_size, nSlices, slice_to_be_lost, mode);
+[mask centers] = simuLoss(img, mb_size, nSlices, slice_to_be_lost, mode);%模拟丢失块，img是去除余数后图像
 received_frame = mask;
 
 %% Concealment

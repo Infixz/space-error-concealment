@@ -35,8 +35,8 @@ if strcmp(mode, 'dispersed')    %比较字符串选择模式
     PicWidthInMbs = cols/mb_size;    %以块大小计量图片：宽度
     PicHeightInMbs = rows/mb_size;   % 高度
     PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    %用块大小计算图像面积
-    num_slice_groups_minus1 = nSlices - 1;    %nSlices:图像由多少slice组成
-    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %
+    num_slice_groups_minus1 = nSlices - 1;    %nSlic
+    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %see 8.2.2.2 "Specification for dispersed slice group map type" in
