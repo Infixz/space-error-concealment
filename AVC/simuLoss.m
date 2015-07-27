@@ -36,7 +36,7 @@ if strcmp(mode, 'dispersed')    %比较字符串选择模式
     PicHeightInMbs = rows/mb_size;   % 高度
     PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    %用块大小计算图像面积
     num_slice_groups_minus1 = nSlices - 1;    %nSlices:图像由多少slice组成
-    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %
+    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %散布图
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %see 8.2.2.2 "Specification for dispersed slice group map type" in
