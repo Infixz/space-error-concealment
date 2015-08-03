@@ -30,6 +30,7 @@ y = img;
 [rows cols] = size(img);%得到图像实际的长宽
 
 %% Dispersed slicing, as described in Recommendation H.264
+% 独立分布
 if strcmp(mode, 'dispersed')    %比较字符串选择模式
     %Extracting variables needed for slicing (see Recommendation H.264)
     PicWidthInMbs = cols/mb_size;    %以块大小计量图片：宽度

@@ -48,8 +48,8 @@ tic    %开始计时
 
 slice_to_be_lost = 1;    %丢失第几个
 nSlices = 2;    %number of slices the image is made of
-mb_size = 8;    %块大小，macroblock
-mode = 'random';    %模式选择
+mb_size = 64;    %块大小，macroblock
+mode = 'default';    %模式选择
 
 %Cropping the image so it is made of an integer number of macroblocks
 %将图片切成宏块
