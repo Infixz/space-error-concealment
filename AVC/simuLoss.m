@@ -2,14 +2,14 @@
 %loss of one NALU (i.e. slice) given a slicing mode and the slice to be
 %lost
 
-function [y centers] = simuLoss(img, mb_size, nSlices, nLoss, mode, loss_rate)
+function [y, centers] = simuLoss(img, mb_size, nSlices, nLoss, mode, loss_rate)
 
 % INPUT:
 %   img     - original frame
 %   nSlice  - number of slices the image is made of
 %   nLoss   - indicates the slice that is lost
 %   mb_size - macroblock dimensions
-
+%
 % OUTPUT:
 %   y       - damaged frame, missing pixels are set to -1
 %   centers - 2xN vector, where N is the number of missing macroblocks
@@ -27,7 +27,7 @@ elseif nargin < 6
 end
 
 y = img;
-[rows cols] = size(img);%得到图像实际的长宽
+[rows, cols] = size(img);%得到图像实际的长宽
 
 %% Dispersed slicing, as described in Recommendation H.264
 % 独立分布
@@ -115,11 +115,11 @@ elseif strcmp(mode, 'random')
     end
 
 elseif strcmp(mode, 'specify')
-    % 本模式基于FMO TYPE2 丢失模式，特殊点在于rectangular的宽度达到了图片宽度
-    PicWidthInMbs = cols/mb_size;    %以块大小计量图片：宽度
+    % 本模式基于FMO TYPE2 丢失模式，构造成图像roi区域丢失
+    PicWidthInMbs = cols/mb_size;    % 以块大小计量图片：宽度
     PicHeightInMbs = rows/mb_size;   % 高度
-    PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    %用块大小计算图像面积
-    num_slice_groups_minus1 = nSlices - 1;    %nSlices:图像由多少slice组成
+    PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    % 用块大小计算图像面积
+    num_slice_groups_minus1 = nSlices - 1;    % nSlices:图像由多少slice组成
     mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %散布图做编号
     mapUnitToSliceGroupMap(480:540) = 1;
     % C实现为：

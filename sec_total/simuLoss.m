@@ -2,7 +2,7 @@
 %loss of one NALU (i.e. slice) given a slicing mode and the slice to be
 %lost
 
-function [y centers] = simuLoss(img, mb_size, nSlices, nLoss, mode, loss_rate)
+function [y, centers] = simuLoss(img, mb_size, nSlices, nLoss, mode, loss_rate)
 
 % INPUT:
 %   img     - original frame
@@ -27,7 +27,7 @@ elseif nargin < 6
 end
 
 y = img;
-[rows cols] = size(img);%得到图像实际的长宽
+[rows, cols] = size(img);%得到图像实际的长宽
 
 %% Dispersed slicing, as described in Recommendation H.264
 % 独立分布
@@ -63,7 +63,7 @@ if strcmp(mode, 'dispersed')    %比较字符串选择模式
         for j = 1:mb_size:cols-mb_size+1
                         
             if mapUnitToSliceGroupMap(counter)+1 == nLoss                            
-                y(i:i+mb_size-1,j:j+mb_size-1) = -ones(mb_size);
+                y(i:i+mb_size-1,j:j+mb_size-1) = -ones(mb_size);% 选定块置 -1
                 centers(:,counter_centers) = [i;j];                
                 counter_centers = counter_centers + 1;
             end
@@ -115,23 +115,47 @@ elseif strcmp(mode, 'random')
     end
 
 elseif strcmp(mode, 'specify')
-    % 本模式基于FMO TYPE2 丢失模式，特殊点在于rectangular的宽度达到了图片宽度
-    PicWidthInMbs = cols/mb_size;    %以块大小计量图片：宽度
+    % 本模式基于FMO TYPE2 丢失模式，构造成图像roi区域丢失
+    PicWidthInMbs = cols/mb_size;    % 以块大小计量图片：宽度
     PicHeightInMbs = rows/mb_size;   % 高度
-    PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    %用块大小计算图像面积
-    num_slice_groups_minus1 = nSlices - 1;    %nSlices:图像由多少slice组成
-    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %散布图做编号    
+    PicSizeInMapUnits = PicWidthInMbs * PicHeightInMbs;    % 用块大小计算图像面积
+    num_slice_groups_minus1 = nSlices - 1;    % nSlices:图像由多少slice组成
+    mapUnitToSliceGroupMap = zeros(1,PicSizeInMapUnits);    %散布图做编号
+    % configure
+    mapUnitToSliceGroupMap(461:467) = 1;
+    mapUnitToSliceGroupMap(461+32:467+32) = 1;
+    mapUnitToSliceGroupMap(461+32*2:467+32*2) = 1;
+    mapUnitToSliceGroupMap(461+32*3:467+32*3) = 1;
     
-    for i = 1:mb_size:rows - mb_size
-        for j = 1:mb_size:cols - mb_size
-            if counter <= length(indices) && iterator == indices(counter)
-                y(i:i+mb_size-1,j:j+mb_size-1) = -ones(mb_size);                
-                centers(:,counter) = [i;j];
-                counter = counter + 1;
+    
+    % C实现为：
+    % for( i = 0; i < p_Img->PicSizeInMapUnits; i++ ){
+    % p_Img->MapUnitToSliceGroupMap [i] = (byte) (((i%p_Img->PicWidthInMbs)+(((i/p_Img->PicWidthInMbs)*(pps->num_slice_groups_minus1+1))>>1))
+    %  %(pps->num_slice_groups_minus1+1));}
+    
+    %for i = 0:PicSizeInMapUnits-1
+    %    mapUnitToSliceGroupMap(i+1)  = mod((mod(i,PicWidthInMbs) + floor((floor(i/PicWidthInMbs)*(num_slice_groups_minus1+1))/2)),(num_slice_groups_minus1+1));       
+    %end
+    
+    %Setting the missing pixels to -1 and computing param:centers:
+    counter = 1;
+    counter_centers = 1;
+    
+    centers = zeros(2,sum(mapUnitToSliceGroupMap(counter)+1 == nLoss));    
+    %centers?什么作用，为什么它是二维矩阵
+    
+    for i = 1:mb_size:rows-mb_size+1
+        for j = 1:mb_size:cols-mb_size+1
+                        
+            if mapUnitToSliceGroupMap(counter) == nLoss                            
+                y(i:i+mb_size-1,j:j+mb_size-1) = -ones(mb_size);% 选定块置 -1
+                centers(:,counter_centers) = [i;j];                
+                counter_centers = counter_centers + 1;
             end
-            iterator = iterator + 1;
+            counter = counter + 1;
+            
         end
-    end    
+    end
     
 else    %end of if
     display('Error: Invalid slicing mode')

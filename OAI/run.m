@@ -30,9 +30,14 @@
 %                                                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-tic%% Loading the image and parsing it to grey level, if needed
+%% init
+clear;
+clc;
 
-img = imread('D:\MATlab\toolbox\images\imdemos\1.png');
+%% Loading the image and parsing it to grey level, if needed
+[filename,pathname]=uigetfile({'*.tiff';'*.tif';'*.*';'*.bmp'},'图像文件');
+file=[pathname,filename];
+img = imread(file);
 [r c d] = size(img);
 if d > 1
     img = double(rgb2gray(img));
@@ -41,6 +46,7 @@ else
 end
 
 %% Generating losses
+tic    %开始计时
 
 slice_to_be_lost = 1;
 nSlices = 2;
@@ -49,10 +55,10 @@ mode = 'default';
 
 %Cropping the image so it is made of an integer number of macroblocks %%%%%
 img = img(1:floor(r/mb_size)*mb_size,1:floor(c/mb_size)*mb_size);
-[r c] = size(img);
+[r,c] = size(img);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-[mask centers] = simuLoss(img, mb_size, nSlices, slice_to_be_lost, mode);
+[mask,centers] = simuLoss(img, mb_size, nSlices, slice_to_be_lost, mode);
 received_frame = mask;
 
 %% Concealment
